@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 
@@ -23,6 +23,7 @@ async function run() {
     try {
         const database = client.db("autoWerke");
         const servicesCollection = database.collection("services");
+        const ordersCollection = database.collection("orders");
 
         app.get('/services', async (req, res) => {
             const query = {};
@@ -30,6 +31,21 @@ async function run() {
             const services = await cursor.toArray();
             res.send(services);
         })
+
+        app.get('/services/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const service = await servicesCollection.findOne(query);
+            res.send(service);
+        })
+
+        // Orders API
+        app.post('/orders', async (req, res) => {
+            const doc = req.body;
+            const order = await ordersCollection.insertOne(doc);
+            res.send(order);
+        })
+
     }
     finally {
 
