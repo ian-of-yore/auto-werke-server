@@ -40,10 +40,27 @@ async function run() {
         })
 
         // Orders API
+        app.get('/orders', async (req, res) => {
+            let query = {};
+            if (req.query.email) {
+                query = { email: req.query.email }
+            }
+            const cursor = ordersCollection.find(query);
+            const orders = await cursor.toArray();
+            res.send(orders);
+        })
+
         app.post('/orders', async (req, res) => {
             const doc = req.body;
             const order = await ordersCollection.insertOne(doc);
             res.send(order);
+        })
+
+        app.delete('/orders/:id', async (req, res) => {
+            const id = req.params.id;
+            const query = { _id: ObjectId(id) };
+            const result = await ordersCollection.deleteOne(query);
+            res.send(result);
         })
 
     }
